@@ -88,17 +88,17 @@ class update_quiz extends external_api {
         require_capability('quizaccess/honorlock:ws', $syscontext);
 
         if (!util::is_honorlock_active()) {
-            return ['success' => false, 'errors' => ['Honorlock is not active']];
+            return ['success' => false, 'errors' => [get_string('honorlockinactive', 'quizaccess_honorlock')]];
         }
 
         $quiz = $DB->get_record('quiz', ['id' => $quizid]);
         if (!$quiz) {
-            return ['success' => false, 'errors' => ['Quiz does not exist']];
+            return ['success' => false, 'errors' => [get_string('quiznotexist', 'quizaccess_honorlock')]];
         }
 
         $cm = get_coursemodule_from_instance('quiz', $quiz->id, $quiz->course);
         if (!$cm || $cm->deletioninprogress) {
-            return ['success' => false, 'errors' => ['Activity is scheduled for deletion']];
+            return ['success' => false, 'errors' => [get_string('activityscheduledfordeletion', 'quizaccess_honorlock')]];
         }
 
         if ($honorlockenable === null) {

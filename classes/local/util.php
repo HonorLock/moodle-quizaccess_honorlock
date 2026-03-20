@@ -115,9 +115,9 @@ final class util {
             delete_role($wsrole->id);
         }
         $wsroleid = create_role(
-            'Honorlock API Access',
+            get_string('wsrolename', 'quizaccess_honorlock'),
             self::WS_ROLE_SHORTNAME,
-            'Access for API user to the external service'
+            get_string('wsroledescription', 'quizaccess_honorlock')
         );
         set_config('wsroleid', $wsroleid, 'quizaccess_honorlock');
         $wsrole = $DB->get_record('role', ['id' => $wsroleid], '*', MUST_EXIST);
@@ -209,16 +209,17 @@ final class util {
 
         $type = self::get_lti_type();
         if ($type) {
-            if ($type->description !== 'Honorlock LTI Tool 1.3') {
-                $type->description = 'Honorlock LTI Tool 1.3';
+            $ltidescription = get_string('ltitypedescription', 'quizaccess_honorlock');
+            if ($type->description !== $ltidescription) {
+                $type->description = $ltidescription;
                 $DB->set_field('lti_types', 'description', $type->description, ['id' => $type->id]);
             }
         } else {
             $data = (object)[
                 // Required parameters for Honorlock Proctoring.
-                'lti_typename' => 'Honorlock LTI',
+                'lti_typename' => get_string('ltitypename', 'quizaccess_honorlock'),
                 'lti_toolurl' => "$honorlockurl/lms",
-                'lti_description' => 'Honorlock LTI Tool 1.3',
+                'lti_description' => get_string('ltitypedescription', 'quizaccess_honorlock'),
                 'lti_ltiversion' => LTI_VERSION_1P3,
                 'lti_keytype' => LTI_JWK_KEYSET,
                 'lti_publickeyset' => '',
@@ -303,7 +304,12 @@ final class util {
         // Do not delete LTI type because it may be referenced in course activities.
 
         if ($type) {
-            $DB->set_field('lti_types', 'description', 'Honorlock LTI Tool 1.3 (not active)', ['id' => $type->id]);
+            $DB->set_field(
+                'lti_types',
+                'description',
+                get_string('ltitypedescriptioninactive', 'quizaccess_honorlock'),
+                ['id' => $type->id]
+            );
         }
     }
 

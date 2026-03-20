@@ -91,7 +91,7 @@ class get_quizzes extends external_api {
         require_capability('quizaccess/honorlock:ws', \context_system::instance());
 
         if (!util::is_honorlock_active()) {
-            return ['success' => false, 'data' => [], 'errors' => ['Honorlock is not active']];
+            return ['success' => false, 'data' => [], 'errors' => [get_string('honorlockinactive', 'quizaccess_honorlock')]];
         }
 
         $sql = "SELECT q.id, q.course AS courseid, q.name, q.intro, q.introformat,

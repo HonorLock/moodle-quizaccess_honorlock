@@ -83,7 +83,7 @@ class get_questions extends external_api {
         require_capability('quizaccess/honorlock:ws', \context_system::instance());
 
         if (!util::is_honorlock_active()) {
-            return ['success' => false, 'data' => [], 'errors' => ['Honorlock is not active']];
+            return ['success' => false, 'data' => [], 'errors' => [get_string('honorlockinactive', 'quizaccess_honorlock')]];
         }
 
         require_capability('quizaccess/honorlock:ws', \context_system::instance());
@@ -93,7 +93,7 @@ class get_questions extends external_api {
             // Check if the user has permission to view quiz questions.
             $cm = get_coursemodule_from_instance('quiz', $quiz->id, $quiz->course);
             if (!$cm || $cm->deletioninprogress) {
-                throw new \Exception('Activity is scheduled for deletion');
+                throw new \Exception(get_string('activityscheduledfordeletion', 'quizaccess_honorlock'));
             }
 
             $result = [];

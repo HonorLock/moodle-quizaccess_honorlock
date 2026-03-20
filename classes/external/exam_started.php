@@ -84,23 +84,23 @@ class exam_started extends external_api {
         self::validate_context($syscontext);
 
         if (!util::is_honorlock_active()) {
-            return ['success' => false, 'errors' => ['Honorlock is not active']];
+            return ['success' => false, 'errors' => [get_string('honorlockinactive', 'quizaccess_honorlock')]];
         }
 
         require_login();
 
         $quiz = $DB->get_record('quiz', ['id' => $quizid]);
         if (!$quiz) {
-            return ['success' => false, 'errors' => ['Quiz does not exist']];
+            return ['success' => false, 'errors' => [get_string('quiznotexist', 'quizaccess_honorlock')]];
         }
         if (!$course = $DB->get_record('course', ['id' => $quiz->course])) {
-            return ['success' => false, 'errors' => ['Course does not exist']];
+            return ['success' => false, 'errors' => [get_string('coursenotexist', 'quizaccess_honorlock')]];
         }
         if (!$cm = get_coursemodule_from_instance("quiz", $quiz->id, $course->id)) {
-            return ['success' => false, 'errors' => ['Course module does not exist']];
+            return ['success' => false, 'errors' => [get_string('coursemodulenotexist', 'quizaccess_honorlock')]];
         }
         if ($cm->deletioninprogress) {
-            return ['success' => false, 'errors' => ['Activity is scheduled for deletion']];
+            return ['success' => false, 'errors' => [get_string('activityscheduledfordeletion', 'quizaccess_honorlock')]];
         }
         require_login($course, false, $cm);
 
@@ -110,14 +110,14 @@ class exam_started extends external_api {
         // Verify user is on the authentication page.
         $honorlock = new honorlock();
         if (!$honorlock->verify_session($USER->id, $quizid, $attempt)) {
-            return ['success' => false, 'errors' => ['User not authenticated with Honorlock']];
+            return ['success' => false, 'errors' => [get_string('usernotauthenticated', 'quizaccess_honorlock')]];
         }
 
         // Start session.
         if (!$honorlock->begin_session($USER->id, $quizid, $attempt)) {
             // Try continuing the session.
             if (!$honorlock->continue_session($USER->id, $quizid, $attempt)) {
-                return ['success' => false, 'errors' => ['Cannot begin Honorlock exam session']];
+                return ['success' => false, 'errors' => [get_string('cannotbeginsession', 'quizaccess_honorlock')]];
             }
         }
 
