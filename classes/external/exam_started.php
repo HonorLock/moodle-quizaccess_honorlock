@@ -79,15 +79,9 @@ class exam_started extends external_api {
         $quizid = $params['quizid'];
         $attempt = $params['attempt'];
 
-        $syscontext = \context_system::instance();
-
-        self::validate_context($syscontext);
-
         if (!util::is_honorlock_active()) {
             return ['success' => false, 'errors' => [get_string('honorlockinactive', 'quizaccess_honorlock')]];
         }
-
-        require_login();
 
         $quiz = $DB->get_record('quiz', ['id' => $quizid]);
         if (!$quiz) {
@@ -102,7 +96,10 @@ class exam_started extends external_api {
         if ($cm->deletioninprogress) {
             return ['success' => false, 'errors' => [get_string('activityscheduledfordeletion', 'quizaccess_honorlock')]];
         }
-        require_login($course, false, $cm);
+
+        $modcontext = \context_module::instance($cm->id);
+        self::validate_context($modcontext);
+        require_capability('mod/quiz:attempt', $modcontext);
 
         unset($SESSION->quizaccess_honorlock_exam);
         unset($SESSION->quizaccess_honorlock_attempt);

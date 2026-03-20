@@ -80,13 +80,13 @@ class get_questions extends external_api {
         $params = self::validate_parameters(self::execute_parameters(), ['quizid' => $quizid]);
         $quizid = $params['quizid'];
 
-        require_capability('quizaccess/honorlock:ws', \context_system::instance());
+        $syscontext = \context_system::instance();
+        self::validate_context($syscontext);
+        require_capability('quizaccess/honorlock:ws', $syscontext);
 
         if (!util::is_honorlock_active()) {
             return ['success' => false, 'data' => [], 'errors' => [get_string('honorlockinactive', 'quizaccess_honorlock')]];
         }
-
-        require_capability('quizaccess/honorlock:ws', \context_system::instance());
 
         try {
             $quiz = $DB->get_record('quiz', ['id' => $quizid], '*', MUST_EXIST);

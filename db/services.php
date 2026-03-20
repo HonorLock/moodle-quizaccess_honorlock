@@ -32,6 +32,7 @@ $functions = [
         'description' => 'Get courses',
         'type' => 'read',
         'ajax' => false,
+        'capabilities' => 'quizaccess/honorlock:ws',
     ],
     'quizaccess_honorlock_get_info' => [
         'classname' => quizaccess_honorlock\external\get_info::class,
@@ -40,6 +41,7 @@ $functions = [
         'description' => 'Get site info for diagnostic purposes',
         'type' => 'read',
         'ajax' => false,
+        'capabilities' => 'quizaccess/honorlock:ws',
     ],
     'quizaccess_honorlock_get_questions' => [
         'classname' => quizaccess_honorlock\external\get_questions::class,
@@ -48,6 +50,7 @@ $functions = [
         'description' => 'Get quiz questions',
         'type' => 'read',
         'ajax' => false,
+        'capabilities' => 'quizaccess/honorlock:ws',
     ],
     'quizaccess_honorlock_get_quizzes' => [
         'classname' => quizaccess_honorlock\external\get_quizzes::class,
@@ -56,23 +59,26 @@ $functions = [
         'description' => 'Get quizzes',
         'type' => 'read',
         'ajax' => false,
+        'capabilities' => 'quizaccess/honorlock:ws',
     ],
     'quizaccess_honorlock_update_quiz' => [
         'classname' => quizaccess_honorlock\external\update_quiz::class,
         'methodname' => 'execute',
         'classpath' => '',
-        'description' => 'Get quizzes',
+        'description' => 'Update quiz Honorlock settings',
         'type' => 'write',
         'ajax' => false,
+        'capabilities' => 'quizaccess/honorlock:ws',
     ],
     'quizaccess_honorlock_exam_started' => [
         'classname' => quizaccess_honorlock\external\exam_started::class,
         'methodname' => 'execute',
         'classpath' => '',
-        'description' => 'Get quizzes',
+        'description' => 'Store exam started session flag',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
+        'capabilities' => 'mod/quiz:attempt',
     ],
 ];
 
