@@ -71,7 +71,7 @@ class exam_started extends external_api {
      * @return array
      */
     public static function execute(int $quizid, int $attempt): array {
-        global $DB, $SESSION, $USER;
+        global $DB, $USER;
         $params = self::validate_parameters(
             self::execute_parameters(),
             ['quizid' => $quizid, 'attempt' => $attempt]
@@ -101,8 +101,7 @@ class exam_started extends external_api {
         self::validate_context($modcontext);
         require_capability('mod/quiz:attempt', $modcontext);
 
-        unset($SESSION->quizaccess_honorlock_exam);
-        unset($SESSION->quizaccess_honorlock_attempt);
+        util::clear_session_data();
 
         // Verify user is on the authentication page.
         $honorlock = new honorlock();
@@ -118,8 +117,7 @@ class exam_started extends external_api {
             }
         }
 
-        $SESSION->quizaccess_honorlock_exam = $quizid;
-        $SESSION->quizaccess_honorlock_attempt = $attempt;
+        util::set_session_data($quizid, $attempt);
 
         return ['success' => true, 'errors' => []];
     }

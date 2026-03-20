@@ -500,4 +500,37 @@ final class util {
             ['quiz' => $quizid, 'userid' => $userid]
         );
     }
+
+    /**
+     * Get active Honorlock exam session data from cache.
+     *
+     * @return array|null array with 'quizid' and 'attempt' keys, or null if no active session
+     */
+    public static function get_session_data(): ?array {
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $data = $cache->get('active_exam');
+        if ($data === false) {
+            return null;
+        }
+        return $data;
+    }
+
+    /**
+     * Store active Honorlock exam session data in cache.
+     *
+     * @param int $quizid
+     * @param int $attempt
+     */
+    public static function set_session_data(int $quizid, int $attempt): void {
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $cache->set('active_exam', ['quizid' => $quizid, 'attempt' => $attempt]);
+    }
+
+    /**
+     * Clear active Honorlock exam session data from cache.
+     */
+    public static function clear_session_data(): void {
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $cache->delete('active_exam');
+    }
 }

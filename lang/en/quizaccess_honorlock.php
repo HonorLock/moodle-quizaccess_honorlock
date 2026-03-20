@@ -36,6 +36,7 @@ $string['activateinstructions'] = '<strong>IMPORTANT:</strong>Copy the following
 $string['activityscheduledfordeletion'] = 'Activity is scheduled for deletion';
 $string['apierror'] = 'Unknown error communicating with Honorlock server';
 $string['cachedef_honorlock_api_token'] = 'Honorlock API Token Cache';
+$string['cachedef_honorlock_session'] = 'Honorlock active exam session data';
 $string['cannotbeginsession'] = 'Cannot begin Honorlock exam session';
 $string['connectiondiags'] = 'Connection tests';
 $string['coursemodulenotexist'] = 'Course module does not exist';

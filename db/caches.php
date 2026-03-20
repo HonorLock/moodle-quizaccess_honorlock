@@ -30,4 +30,9 @@ $definitions = [
         'simplekeys' => true,
         'staticacceleration' => false,
     ],
+    'honorlock_session' => [
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'simpledata' => true,
+    ],
 ];

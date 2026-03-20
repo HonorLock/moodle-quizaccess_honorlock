@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'quizaccess_honorlock';
 $plugin->release = '4.2.2';
-$plugin->version = 2026030300;
+$plugin->version = 2026032000;
 $plugin->requires = 2023042400;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->supported = [405, 501];
