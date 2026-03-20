@@ -140,7 +140,7 @@ final class util_test extends \advanced_testcase {
         $wsroleid = get_config('quizaccess_honorlock', 'wsroleid');
         $wsrole = $DB->get_record('role', ['id' => $wsroleid], '*', MUST_EXIST);
         $this->assertSame('honorlock_api_access', $wsrole->shortname);
-        $this->assertSame('Honorlock API Access', $wsrole->name);
+        $this->assertSame(get_string('wsrolename', 'quizaccess_honorlock'), $wsrole->name);
 
         $this->assertTrue(has_capability('quizaccess/honorlock:ws', \context_system::instance(), $wsuser));
 
@@ -230,7 +230,7 @@ final class util_test extends \advanced_testcase {
 
         $type = util::get_lti_type();
         $this->assertSame($result['lti_deploymentid'], $type->id);
-        $this->assertSame('Honorlock LTI', $type->name);
+        $this->assertSame(get_string('ltitypename', 'quizaccess_honorlock'), $type->name);
         $this->assertSame('https://app.honorlock.com/lms', $type->baseurl);
         $this->assertSame('app.honorlock.com', $type->tooldomain);
         $this->assertSame('1', $type->state);
@@ -239,7 +239,7 @@ final class util_test extends \advanced_testcase {
         $this->assertSame('1.3.0', $type->ltiversion);
         $this->assertSame($result['lti_clientid'], $type->clientid);
         $this->assertSame('1.3.0', $type->ltiversion);
-        $this->assertSame('Honorlock LTI Tool 1.3', $type->description);
+        $this->assertSame(get_string('ltitypedescription', 'quizaccess_honorlock'), $type->description);
 
         set_config('honorlock_url', 'https://appxxxx.honorlock.com', 'quizaccess_honorlock');
         $this->assertNull(util::get_lti_type());
@@ -263,7 +263,7 @@ final class util_test extends \advanced_testcase {
         set_config('honorlock_url', util::HONORLOCK_URL, 'quizaccess_honorlock');
         $type = util::get_lti_type();
         $this->assertSame($result['lti_deploymentid'], $type->id);
-        $this->assertSame('Honorlock LTI', $type->name);
+        $this->assertSame(get_string('ltitypename', 'quizaccess_honorlock'), $type->name);
         $this->assertSame('https://app.honorlock.com/lms', $type->baseurl);
         $this->assertSame('app.honorlock.com', $type->tooldomain);
         $this->assertSame('1', $type->state);
@@ -272,12 +272,12 @@ final class util_test extends \advanced_testcase {
         $this->assertSame('1.3.0', $type->ltiversion);
         $this->assertSame($result['lti_clientid'], $type->clientid);
         $this->assertSame('1.3.0', $type->ltiversion);
-        $this->assertSame('Honorlock LTI Tool 1.3 (not active)', $type->description);
+        $this->assertSame(get_string('ltitypedescriptioninactive', 'quizaccess_honorlock'), $type->description);
 
         util::init_lti();
         $type = util::get_lti_type();
         $this->assertSame($result['lti_deploymentid'], $type->id);
-        $this->assertSame('Honorlock LTI', $type->name);
+        $this->assertSame(get_string('ltitypename', 'quizaccess_honorlock'), $type->name);
         $this->assertSame('https://app.honorlock.com/lms', $type->baseurl);
         $this->assertSame('app.honorlock.com', $type->tooldomain);
         $this->assertSame('1', $type->state);
@@ -286,7 +286,7 @@ final class util_test extends \advanced_testcase {
         $this->assertSame('1.3.0', $type->ltiversion);
         $this->assertSame($result['lti_clientid'], $type->clientid);
         $this->assertSame('1.3.0', $type->ltiversion);
-        $this->assertSame('Honorlock LTI Tool 1.3', $type->description);
+        $this->assertSame(get_string('ltitypedescription', 'quizaccess_honorlock'), $type->description);
     }
 
     /**
@@ -369,7 +369,7 @@ final class util_test extends \advanced_testcase {
         $row = array_shift($result);
         $this->assertSame('Web service user', $row['name']);
         $row = array_shift($result);
-        $this->assertSame(['name' => 'External tool', 'value' => 'Honorlock LTI'], $row);
+        $this->assertSame(['name' => 'External tool', 'value' => get_string('ltitypename', 'quizaccess_honorlock')], $row);
         $this->assertSame([], $result);
 
         util::disable();

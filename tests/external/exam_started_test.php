@@ -39,7 +39,7 @@ final class exam_started_test extends \advanced_testcase {
      * @covers ::execute
      */
     public function test_execute(): void {
-        global $CFG, $DB, $SESSION;
+        global $CFG, $DB;
         require_once("$CFG->libdir/filelib.php");
 
         util::activate('aa-bb-cc', 'dskjdsakj', util::HONORLOCK_URL);
@@ -75,8 +75,10 @@ final class exam_started_test extends \advanced_testcase {
         $result = exam_started::execute($quiz1->id, 1);
         $result = exam_started::clean_returnvalue(exam_started::execute_returns(), $result);
         $this->assertSame(['success' => true, 'errors' => []], $result);
-        $this->assertSame((int)$quiz1->id, $SESSION->quizaccess_honorlock_exam);
-        $this->assertSame(1, $SESSION->quizaccess_honorlock_attempt);
+        $sessiondata = util::get_session_data();
+        $this->assertNotNull($sessiondata);
+        $this->assertSame((int)$quiz1->id, $sessiondata['quizid']);
+        $this->assertSame(1, $sessiondata['attempt']);
 
         $testresponse = (object)[
             "data" => [
@@ -94,8 +96,10 @@ final class exam_started_test extends \advanced_testcase {
         $result = exam_started::execute($quiz1->id, 2);
         $result = exam_started::clean_returnvalue(exam_started::execute_returns(), $result);
         $this->assertSame(['success' => true, 'errors' => []], $result);
-        $this->assertSame((int)$quiz1->id, $SESSION->quizaccess_honorlock_exam);
-        $this->assertSame(2, $SESSION->quizaccess_honorlock_attempt);
+        $sessiondata = util::get_session_data();
+        $this->assertNotNull($sessiondata);
+        $this->assertSame((int)$quiz1->id, $sessiondata['quizid']);
+        $this->assertSame(2, $sessiondata['attempt']);
 
         $testresponse = (object)[
             "data" => [
@@ -105,11 +109,10 @@ final class exam_started_test extends \advanced_testcase {
         $result = exam_started::execute($quiz1->id, 2);
         $result = exam_started::clean_returnvalue(exam_started::execute_returns(), $result);
         $this->assertSame(
-            ['success' => false, 'errors' => ['User not authenticated with Honorlock']],
+            ['success' => false, 'errors' => [get_string('usernotauthenticated', 'quizaccess_honorlock')]],
             $result
         );
-        $this->assertObjectNotHasProperty('quizaccess_honorlock_exam', $SESSION);
-        $this->assertObjectNotHasProperty('quizaccess_honorlock_attempt', $SESSION);
+        $this->assertNull(util::get_session_data());
 
         $testresponse = (object)[
             "data" => [],
@@ -123,10 +126,9 @@ final class exam_started_test extends \advanced_testcase {
         $result = exam_started::execute($quiz1->id, 2);
         $result = exam_started::clean_returnvalue(exam_started::execute_returns(), $result);
         $this->assertSame(
-            ['success' => false, 'errors' => ['Cannot begin Honorlock exam session']],
+            ['success' => false, 'errors' => [get_string('cannotbeginsession', 'quizaccess_honorlock')]],
             $result
         );
-        $this->assertObjectNotHasProperty('quizaccess_honorlock_exam', $SESSION);
-        $this->assertObjectNotHasProperty('quizaccess_honorlock_attempt', $SESSION);
+        $this->assertNull(util::get_session_data());
     }
 }

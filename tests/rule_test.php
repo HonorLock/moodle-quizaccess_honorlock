@@ -176,7 +176,7 @@ final class rule_test extends \advanced_testcase {
      * @covers ::is_preflight_check_required
      */
     public function test_is_preflight_check_required(): void {
-        global $DB, $SESSION;
+        global $DB;
 
         $course = $this->getDataGenerator()->create_course();
         $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
@@ -203,12 +203,10 @@ final class rule_test extends \advanced_testcase {
         $rule = \quizaccess_honorlock::make($quizobj, time(), false);
         $this->assertTrue($rule->is_preflight_check_required(null));
 
-        $SESSION->quizaccess_honorlock_exam = (int)$quiz->id;
-        $SESSION->quizaccess_honorlock_attempt = 1;
+        util::set_session_data((int)$quiz->id, 1);
         $this->assertFalse($rule->is_preflight_check_required(null));
 
-        $SESSION->quizaccess_honorlock_exam = -1;
-        $SESSION->quizaccess_honorlock_attempt = 1;
+        util::set_session_data(-1, 1);
         $this->assertTrue($rule->is_preflight_check_required(null));
     }
 
@@ -262,7 +260,7 @@ final class rule_test extends \advanced_testcase {
      * @covers ::current_attempt_finished
      */
     public function test_current_attempt_finished(): void {
-        global $DB, $SESSION;
+        global $DB;
 
         $course = $this->getDataGenerator()->create_course();
         $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
@@ -288,8 +286,7 @@ final class rule_test extends \advanced_testcase {
 
         $rule = \quizaccess_honorlock::make($quizobj, time(), false);
 
-        $SESSION->quizaccess_honorlock_exam = (int)$quizobj->get_quizid();
-        $SESSION->quizaccess_honorlock_attempt = 1;
+        util::set_session_data((int)$quizobj->get_quizid(), 1);
         $this->assertFalse($rule->is_preflight_check_required(null));
 
         $rule->current_attempt_finished();
