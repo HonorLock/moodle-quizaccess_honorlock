@@ -101,7 +101,7 @@ class exam_started extends external_api {
         self::validate_context($modcontext);
         require_capability('mod/quiz:attempt', $modcontext);
 
-        util::clear_session_data();
+        util::clear_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
 
         // Verify user is on the authentication page.
         $honorlock = new honorlock();
@@ -117,7 +117,7 @@ class exam_started extends external_api {
             }
         }
 
-        util::set_session_data($quizid, $attempt);
+        util::set_cache_data(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => $quizid, 'attempt' => $attempt]);
 
         return ['success' => true, 'errors' => []];
     }

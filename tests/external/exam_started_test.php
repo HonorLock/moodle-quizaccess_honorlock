@@ -75,10 +75,10 @@ final class exam_started_test extends \advanced_testcase {
         $result = exam_started::execute($quiz1->id, 1);
         $result = exam_started::clean_returnvalue(exam_started::execute_returns(), $result);
         $this->assertSame(['success' => true, 'errors' => []], $result);
-        $sessiondata = util::get_session_data();
-        $this->assertNotNull($sessiondata);
-        $this->assertSame((int)$quiz1->id, $sessiondata['quizid']);
-        $this->assertSame(1, $sessiondata['attempt']);
+        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
+        $this->assertNotNull($cachedata);
+        $this->assertSame((int)$quiz1->id, $cachedata['quizid']);
+        $this->assertSame(1, $cachedata['attempt']);
 
         $testresponse = (object)[
             "data" => [
@@ -96,10 +96,10 @@ final class exam_started_test extends \advanced_testcase {
         $result = exam_started::execute($quiz1->id, 2);
         $result = exam_started::clean_returnvalue(exam_started::execute_returns(), $result);
         $this->assertSame(['success' => true, 'errors' => []], $result);
-        $sessiondata = util::get_session_data();
-        $this->assertNotNull($sessiondata);
-        $this->assertSame((int)$quiz1->id, $sessiondata['quizid']);
-        $this->assertSame(2, $sessiondata['attempt']);
+        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
+        $this->assertNotNull($cachedata);
+        $this->assertSame((int)$quiz1->id, $cachedata['quizid']);
+        $this->assertSame(2, $cachedata['attempt']);
 
         $testresponse = (object)[
             "data" => [
@@ -112,7 +112,7 @@ final class exam_started_test extends \advanced_testcase {
             ['success' => false, 'errors' => [get_string('usernotauthenticated', 'quizaccess_honorlock')]],
             $result
         );
-        $this->assertNull(util::get_session_data());
+        $this->assertNull(util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY));
 
         $testresponse = (object)[
             "data" => [],
@@ -129,6 +129,6 @@ final class exam_started_test extends \advanced_testcase {
             ['success' => false, 'errors' => [get_string('cannotbeginsession', 'quizaccess_honorlock')]],
             $result
         );
-        $this->assertNull(util::get_session_data());
+        $this->assertNull(util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY));
     }
 }

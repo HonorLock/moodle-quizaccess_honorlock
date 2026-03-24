@@ -75,16 +75,16 @@ final class observer_test extends \advanced_testcase {
 
         $this->setUser($user);
 
-        util::set_session_data((int)$quiz->id, 1);
+        util::set_cache_data(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => (int)$quiz->id, 'attempt' => 1]);
 
         $attempt = quiz_prepare_and_start_new_attempt($quizobj, 1, null);
 
-        $this->assertNotNull(util::get_session_data());
+        $this->assertNotNull(util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY));
 
         $attemptobj = quiz_attempt::create($attempt->id);
         $attemptobj->process_finish(time(), false);
 
-        $this->assertNull(util::get_session_data());
+        $this->assertNull(util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY));
     }
 
     /**
@@ -120,12 +120,12 @@ final class observer_test extends \advanced_testcase {
 
         $this->setUser($user);
 
-        util::set_session_data((int)$quiz->id, 1);
+        util::set_cache_data(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => (int)$quiz->id, 'attempt' => 1]);
         $attempt = quiz_prepare_and_start_new_attempt($quizobj, 1, null);
 
         $attemptobj = quiz_attempt::create($attempt->id);
         $attemptobj->process_abandon(time(), false);
 
-        $this->assertNull(util::get_session_data());
+        $this->assertNull(util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY));
     }
 }

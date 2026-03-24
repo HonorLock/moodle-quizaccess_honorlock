@@ -33,6 +33,8 @@ final class util {
     /** @var string WS account email */
     public const WS_USER_EMAIL = 'honorlockapi@example.com';
 
+    public const ACTIVE_EXAM_CACHE_KEY = 'active_exam';
+
     /**
      * Is Honorlock Proctoring configured and active?
      *
@@ -502,35 +504,35 @@ final class util {
     }
 
     /**
-     * Get active Honorlock exam session data from cache.
+     * Get a value from the Honorlock session cache.
      *
-     * @return array|null array with 'quizid' and 'attempt' keys, or null if no active session
+     * @param string $key The cache key to retrieve.
+     * @return mixed The cached value, or null if not found.
      */
-    public static function get_session_data(): ?array {
+    public static function get_cache_data(string $key): mixed {
         $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
-        $data = $cache->get('active_exam');
-        if ($data === false) {
-            return null;
-        }
-        return $data;
+        $data = $cache->get($key);
+        return ($data === false) ? null : $data;
     }
 
     /**
-     * Store active Honorlock exam session data in cache.
+     * Store a value in the Honorlock session cache.
      *
-     * @param int $quizid
-     * @param int $attempt
+     * @param string $key The cache key.
+     * @param mixed $value The value to store.
      */
-    public static function set_session_data(int $quizid, int $attempt): void {
+    public static function set_cache_data(string $key, mixed $value): void {
         $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
-        $cache->set('active_exam', ['quizid' => $quizid, 'attempt' => $attempt]);
+        $cache->set($key, $value);
     }
 
     /**
-     * Clear active Honorlock exam session data from cache.
+     * Clear a value from the Honorlock session cache.
+     *
+     * @param string $key The cache key to delete.
      */
-    public static function clear_session_data(): void {
+    public static function clear_cache_data(string $key): void {
         $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
-        $cache->delete('active_exam');
+        $cache->delete($key);
     }
 }

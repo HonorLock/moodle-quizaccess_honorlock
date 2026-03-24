@@ -49,13 +49,13 @@ class observer {
 
         // Force Honorlock re-authentication if students visits the main quiz page.
 
-        $sessiondata = util::get_session_data();
-        if (!CLI_SCRIPT && $sessiondata !== null) {
+        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
+        if (!CLI_SCRIPT && $cachedata !== null) {
             // Attempt to reset the Honorlock session in browser and extension - this is critical.
             $PAGE->requires->js_call_amd('quizaccess_honorlock/honorlockproctoring', 'quizViewReset');
         }
 
-        util::clear_session_data();
+        util::clear_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
     }
 
     /**
@@ -140,16 +140,16 @@ class observer {
     public static function end_session(int $quizid, int $attempt): void {
         global $USER;
 
-        $sessiondata = util::get_session_data();
-        if ($sessiondata === null) {
+        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
+        if ($cachedata === null) {
             return;
         }
 
-        if ($sessiondata['quizid'] != $quizid || $sessiondata['attempt'] != $attempt) {
+        if ($cachedata['quizid'] != $quizid || $cachedata['attempt'] != $attempt) {
             return;
         }
 
-        util::clear_session_data();
+        util::clear_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
 
         if (util::is_behat() || util::is_phpunit()) {
             return;

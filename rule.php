@@ -128,23 +128,23 @@ class quizaccess_honorlock extends \mod_quiz\local\access_rule_base {
             return;
         }
 
-        $sessiondata = util::get_session_data();
-        if ($sessiondata === null) {
+        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
+        if ($cachedata === null) {
             return;
         }
-        if ($sessiondata['quizid'] != $this->quizobj->get_quizid()) {
+        if ($cachedata['quizid'] != $this->quizobj->get_quizid()) {
             return;
         }
 
-        $quizid = $sessiondata['quizid'];
-        $attempt = $sessiondata['attempt'];
+        $quizid = $cachedata['quizid'];
+        $attempt = $cachedata['attempt'];
 
         if (!util::is_behat()) {
             // Get Honorlock instance.
             $honorlock = new honorlock();
             if (!$honorlock->continue_session($USER->id, $quizid, $attempt)) {
                 // Session is not started, they will have to authenticate again.
-                util::clear_session_data();
+                util::clear_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
                 return;
             }
         }
@@ -250,12 +250,12 @@ class quizaccess_honorlock extends \mod_quiz\local\access_rule_base {
 
         $attempt = util::guess_attempt($USER->id, $quizid, $attemptid);
 
-        $sessiondata = util::get_session_data();
-        if ($sessiondata === null || $sessiondata['quizid'] != $quizid) {
+        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
+        if ($cachedata === null || $cachedata['quizid'] != $quizid) {
             return true;
         }
 
-        if ($sessiondata['attempt'] != $attempt) {
+        if ($cachedata['attempt'] != $attempt) {
             return true;
         }
 
@@ -430,7 +430,7 @@ class quizaccess_honorlock extends \mod_quiz\local\access_rule_base {
             if (!empty($data['quizaccess_honorlock_verification'])) {
                 $quizid = (int)$this->quizobj->get_quizid();
                 $attempt = util::guess_attempt($USER->id, $quizid, $attemptid);
-                util::set_session_data($quizid, $attempt);
+                util::set_cache_data(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => $quizid, 'attempt' => $attempt]);
             }
         }
 
@@ -459,18 +459,18 @@ class quizaccess_honorlock extends \mod_quiz\local\access_rule_base {
      * In case of Honorlock the session is usually ended from event observers.
      */
     public function current_attempt_finished() {
-        $sessiondata = util::get_session_data();
-        if ($sessiondata === null) {
+        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
+        if ($cachedata === null) {
             return;
         }
 
-        if ($sessiondata['quizid'] != $this->quizobj->get_quizid()) {
+        if ($cachedata['quizid'] != $this->quizobj->get_quizid()) {
             return;
         }
 
         \quizaccess_honorlock\local\observer::end_session(
-            $sessiondata['quizid'],
-            $sessiondata['attempt']
+            $cachedata['quizid'],
+            $cachedata['attempt']
         );
     }
 }

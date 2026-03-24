@@ -203,10 +203,10 @@ final class rule_test extends \advanced_testcase {
         $rule = \quizaccess_honorlock::make($quizobj, time(), false);
         $this->assertTrue($rule->is_preflight_check_required(null));
 
-        util::set_session_data((int)$quiz->id, 1);
+        util::set_cache_data(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => (int)$quiz->id, 'attempt' => 1]);
         $this->assertFalse($rule->is_preflight_check_required(null));
 
-        util::set_session_data(-1, 1);
+        util::set_cache_data(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => -1, 'attempt' => 1]);
         $this->assertTrue($rule->is_preflight_check_required(null));
     }
 
@@ -286,7 +286,7 @@ final class rule_test extends \advanced_testcase {
 
         $rule = \quizaccess_honorlock::make($quizobj, time(), false);
 
-        util::set_session_data((int)$quizobj->get_quizid(), 1);
+        util::set_cache_data(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => (int)$quizobj->get_quizid(), 'attempt' => 1]);
         $this->assertFalse($rule->is_preflight_check_required(null));
 
         $rule->current_attempt_finished();
