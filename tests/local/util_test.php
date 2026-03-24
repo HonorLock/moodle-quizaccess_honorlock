@@ -410,4 +410,50 @@ final class util_test extends \advanced_testcase {
         $this->assertSame(2, util::guess_attempt($user->id, $quizobj->get_quizid(), null));
         $this->assertSame(1, util::guess_attempt($user->id, $quizobj->get_quizid(), $attempt->id));
     }
+
+    /**
+     * Test method.
+     * @covers ::get_cache_data
+     */
+    public function test_get_cache_data(): void {
+        $this->assertNull(util::get_cache_data('nonexistent_key'));
+
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $cache->set('test_key', ['foo' => 'bar']);
+        $this->assertSame(['foo' => 'bar'], util::get_cache_data('test_key'));
+    }
+
+    /**
+     * Test method.
+     * @covers ::set_cache_data
+     */
+    public function test_set_cache_data(): void {
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+
+        util::set_cache_data('test_key', 'string_value');
+        $this->assertSame('string_value', $cache->get('test_key'));
+
+        util::set_cache_data('test_key', ['quizid' => 5, 'attempt' => 2]);
+        $this->assertSame(['quizid' => 5, 'attempt' => 2], $cache->get('test_key'));
+
+        util::set_cache_data('another_key', 42);
+        $this->assertSame(42, $cache->get('another_key'));
+        $this->assertSame(['quizid' => 5, 'attempt' => 2], $cache->get('test_key'));
+    }
+
+    /**
+     * Test method.
+     * @covers ::clear_cache_data
+     */
+    public function test_clear_cache_data(): void {
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+
+        $cache->set('key_to_clear', 'value');
+        $cache->set('key_to_keep', 'other');
+
+        util::clear_cache_data('key_to_clear');
+
+        $this->assertFalse($cache->get('key_to_clear'));
+        $this->assertSame('other', $cache->get('key_to_keep'));
+    }
 }
