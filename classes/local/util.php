@@ -32,7 +32,7 @@ final class util {
     public const WS_USER_USERNAME = 'honorlock_api';
     /** @var string WS account email */
     public const WS_USER_EMAIL = 'honorlockapi@example.com';
-
+    /** @var string Active exam cache key */
     public const ACTIVE_EXAM_CACHE_KEY = 'active_exam';
 
     /**
