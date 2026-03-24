@@ -75,8 +75,9 @@ final class exam_started_test extends \advanced_testcase {
         $result = exam_started::execute($quiz1->id, 1);
         $result = exam_started::clean_returnvalue(exam_started::execute_returns(), $result);
         $this->assertSame(['success' => true, 'errors' => []], $result);
-        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
-        $this->assertNotNull($cachedata);
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $cachedata = $cache->get(util::ACTIVE_EXAM_CACHE_KEY);
+        $this->assertNotFalse($cachedata);
         $this->assertSame((int)$quiz1->id, $cachedata['quizid']);
         $this->assertSame(1, $cachedata['attempt']);
 
@@ -96,8 +97,8 @@ final class exam_started_test extends \advanced_testcase {
         $result = exam_started::execute($quiz1->id, 2);
         $result = exam_started::clean_returnvalue(exam_started::execute_returns(), $result);
         $this->assertSame(['success' => true, 'errors' => []], $result);
-        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
-        $this->assertNotNull($cachedata);
+        $cachedata = $cache->get(util::ACTIVE_EXAM_CACHE_KEY);
+        $this->assertNotFalse($cachedata);
         $this->assertSame((int)$quiz1->id, $cachedata['quizid']);
         $this->assertSame(2, $cachedata['attempt']);
 
@@ -112,7 +113,7 @@ final class exam_started_test extends \advanced_testcase {
             ['success' => false, 'errors' => [get_string('usernotauthenticated', 'quizaccess_honorlock')]],
             $result
         );
-        $this->assertNull(util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY));
+        $this->assertFalse($cache->get(util::ACTIVE_EXAM_CACHE_KEY));
 
         $testresponse = (object)[
             "data" => [],
@@ -129,6 +130,6 @@ final class exam_started_test extends \advanced_testcase {
             ['success' => false, 'errors' => [get_string('cannotbeginsession', 'quizaccess_honorlock')]],
             $result
         );
-        $this->assertNull(util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY));
+        $this->assertFalse($cache->get(util::ACTIVE_EXAM_CACHE_KEY));
     }
 }
