@@ -80,20 +80,20 @@ class get_questions extends external_api {
         $params = self::validate_parameters(self::execute_parameters(), ['quizid' => $quizid]);
         $quizid = $params['quizid'];
 
-        require_capability('quizaccess/honorlock:ws', \context_system::instance());
+        $syscontext = \context_system::instance();
+        self::validate_context($syscontext);
+        require_capability('quizaccess/honorlock:ws', $syscontext);
 
         if (!util::is_honorlock_active()) {
-            return ['success' => false, 'data' => [], 'errors' => ['Honorlock is not active']];
+            return ['success' => false, 'data' => [], 'errors' => [get_string('honorlockinactive', 'quizaccess_honorlock')]];
         }
-
-        require_capability('quizaccess/honorlock:ws', \context_system::instance());
 
         try {
             $quiz = $DB->get_record('quiz', ['id' => $quizid], '*', MUST_EXIST);
             // Check if the user has permission to view quiz questions.
             $cm = get_coursemodule_from_instance('quiz', $quiz->id, $quiz->course);
             if (!$cm || $cm->deletioninprogress) {
-                throw new \Exception('Activity is scheduled for deletion');
+                throw new \Exception(get_string('activityscheduledfordeletion', 'quizaccess_honorlock'));
             }
 
             $result = [];

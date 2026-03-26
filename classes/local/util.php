@@ -32,6 +32,8 @@ final class util {
     public const WS_USER_USERNAME = 'honorlock_api';
     /** @var string WS account email */
     public const WS_USER_EMAIL = 'honorlockapi@example.com';
+    /** @var string Active exam cache key */
+    public const ACTIVE_EXAM_CACHE_KEY = 'active_exam';
 
     /**
      * Is Honorlock Proctoring configured and active?
@@ -115,9 +117,9 @@ final class util {
             delete_role($wsrole->id);
         }
         $wsroleid = create_role(
-            'Honorlock API Access',
+            get_string('wsrolename', 'quizaccess_honorlock'),
             self::WS_ROLE_SHORTNAME,
-            'Access for API user to the external service'
+            get_string('wsroledescription', 'quizaccess_honorlock')
         );
         set_config('wsroleid', $wsroleid, 'quizaccess_honorlock');
         $wsrole = $DB->get_record('role', ['id' => $wsroleid], '*', MUST_EXIST);
@@ -209,16 +211,17 @@ final class util {
 
         $type = self::get_lti_type();
         if ($type) {
-            if ($type->description !== 'Honorlock LTI Tool 1.3') {
-                $type->description = 'Honorlock LTI Tool 1.3';
+            $ltidescription = get_string('ltitypedescription', 'quizaccess_honorlock');
+            if ($type->description !== $ltidescription) {
+                $type->description = $ltidescription;
                 $DB->set_field('lti_types', 'description', $type->description, ['id' => $type->id]);
             }
         } else {
             $data = (object)[
                 // Required parameters for Honorlock Proctoring.
-                'lti_typename' => 'Honorlock LTI',
+                'lti_typename' => get_string('ltitypename', 'quizaccess_honorlock'),
                 'lti_toolurl' => "$honorlockurl/lms",
-                'lti_description' => 'Honorlock LTI Tool 1.3',
+                'lti_description' => get_string('ltitypedescription', 'quizaccess_honorlock'),
                 'lti_ltiversion' => LTI_VERSION_1P3,
                 'lti_keytype' => LTI_JWK_KEYSET,
                 'lti_publickeyset' => '',
@@ -303,7 +306,12 @@ final class util {
         // Do not delete LTI type because it may be referenced in course activities.
 
         if ($type) {
-            $DB->set_field('lti_types', 'description', 'Honorlock LTI Tool 1.3 (not active)', ['id' => $type->id]);
+            $DB->set_field(
+                'lti_types',
+                'description',
+                get_string('ltitypedescriptioninactive', 'quizaccess_honorlock'),
+                ['id' => $type->id]
+            );
         }
     }
 
@@ -493,5 +501,38 @@ final class util {
             "MAX(attempt)",
             ['quiz' => $quizid, 'userid' => $userid]
         );
+    }
+
+    /**
+     * Get a value from the Honorlock session cache.
+     *
+     * @param string $key The cache key to retrieve.
+     * @return mixed The cached value, or null if not found.
+     */
+    public static function get_cache_data(string $key): mixed {
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $data = $cache->get($key);
+        return ($data === false) ? null : $data;
+    }
+
+    /**
+     * Store a value in the Honorlock session cache.
+     *
+     * @param string $key The cache key.
+     * @param mixed $value The value to store.
+     */
+    public static function set_cache_data(string $key, mixed $value): void {
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $cache->set($key, $value);
+    }
+
+    /**
+     * Clear a value from the Honorlock session cache.
+     *
+     * @param string $key The cache key to delete.
+     */
+    public static function clear_cache_data(string $key): void {
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $cache->delete($key);
     }
 }

@@ -176,7 +176,7 @@ final class rule_test extends \advanced_testcase {
      * @covers ::is_preflight_check_required
      */
     public function test_is_preflight_check_required(): void {
-        global $DB, $SESSION;
+        global $DB;
 
         $course = $this->getDataGenerator()->create_course();
         $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
@@ -200,15 +200,15 @@ final class rule_test extends \advanced_testcase {
 
         $this->setUser($user);
 
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+
         $rule = \quizaccess_honorlock::make($quizobj, time(), false);
         $this->assertTrue($rule->is_preflight_check_required(null));
 
-        $SESSION->quizaccess_honorlock_exam = (int)$quiz->id;
-        $SESSION->quizaccess_honorlock_attempt = 1;
+        $cache->set(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => (int)$quiz->id, 'attempt' => 1]);
         $this->assertFalse($rule->is_preflight_check_required(null));
 
-        $SESSION->quizaccess_honorlock_exam = -1;
-        $SESSION->quizaccess_honorlock_attempt = 1;
+        $cache->set(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => -1, 'attempt' => 1]);
         $this->assertTrue($rule->is_preflight_check_required(null));
     }
 
@@ -262,7 +262,7 @@ final class rule_test extends \advanced_testcase {
      * @covers ::current_attempt_finished
      */
     public function test_current_attempt_finished(): void {
-        global $DB, $SESSION;
+        global $DB;
 
         $course = $this->getDataGenerator()->create_course();
         $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
@@ -288,8 +288,8 @@ final class rule_test extends \advanced_testcase {
 
         $rule = \quizaccess_honorlock::make($quizobj, time(), false);
 
-        $SESSION->quizaccess_honorlock_exam = (int)$quizobj->get_quizid();
-        $SESSION->quizaccess_honorlock_attempt = 1;
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $cache->set(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => (int)$quizobj->get_quizid(), 'attempt' => 1]);
         $this->assertFalse($rule->is_preflight_check_required(null));
 
         $rule->current_attempt_finished();

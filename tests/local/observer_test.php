@@ -18,6 +18,7 @@ namespace quizaccess_honorlock\local;
 
 use mod_quiz\quiz_settings;
 use mod_quiz\quiz_attempt;
+use quizaccess_honorlock\local\util;
 
 /**
  * Honorlock observer test.
@@ -46,7 +47,7 @@ final class observer_test extends \advanced_testcase {
      * @covers ::attempt_submitted
      */
     public function test_attempt_submitted(): void {
-        global $DB, $SESSION;
+        global $DB;
 
         $course = $this->getDataGenerator()->create_course();
         $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
@@ -74,19 +75,17 @@ final class observer_test extends \advanced_testcase {
 
         $this->setUser($user);
 
-        $SESSION->quizaccess_honorlock_exam = $quiz->id;
-        $SESSION->quizaccess_honorlock_attempt = 1;
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $cache->set(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => (int)$quiz->id, 'attempt' => 1]);
 
         $attempt = quiz_prepare_and_start_new_attempt($quizobj, 1, null);
 
-        $this->assertTrue(isset($SESSION->quizaccess_honorlock_exam));
-        $this->assertTrue(isset($SESSION->quizaccess_honorlock_attempt));
+        $this->assertNotFalse($cache->get(util::ACTIVE_EXAM_CACHE_KEY));
 
         $attemptobj = quiz_attempt::create($attempt->id);
         $attemptobj->process_finish(time(), false);
 
-        $this->assertFalse(isset($SESSION->quizaccess_honorlock_exam));
-        $this->assertFalse(isset($SESSION->quizaccess_honorlock_attempt));
+        $this->assertFalse($cache->get(util::ACTIVE_EXAM_CACHE_KEY));
     }
 
     /**
@@ -94,7 +93,7 @@ final class observer_test extends \advanced_testcase {
      * @covers ::attempt_abandoned
      */
     public function test_attempt_abandoned(): void {
-        global $DB, $SESSION;
+        global $DB;
 
         $course = $this->getDataGenerator()->create_course();
         $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
@@ -122,14 +121,13 @@ final class observer_test extends \advanced_testcase {
 
         $this->setUser($user);
 
-        $SESSION->quizaccess_honorlock_exam = $quiz->id;
-        $SESSION->quizaccess_honorlock_attempt = 1;
+        $cache = \cache::make('quizaccess_honorlock', 'honorlock_session');
+        $cache->set(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => (int)$quiz->id, 'attempt' => 1]);
         $attempt = quiz_prepare_and_start_new_attempt($quizobj, 1, null);
 
         $attemptobj = quiz_attempt::create($attempt->id);
         $attemptobj->process_abandon(time(), false);
 
-        $this->assertFalse(isset($SESSION->quizaccess_honorlock_exam));
-        $this->assertFalse(isset($SESSION->quizaccess_honorlock_attempt));
+        $this->assertFalse($cache->get(util::ACTIVE_EXAM_CACHE_KEY));
     }
 }

@@ -71,7 +71,7 @@ class exam_started extends external_api {
      * @return array
      */
     public static function execute(int $quizid, int $attempt): array {
-        global $DB, $SESSION, $USER;
+        global $DB, $USER;
         $params = self::validate_parameters(
             self::execute_parameters(),
             ['quizid' => $quizid, 'attempt' => $attempt]
@@ -79,50 +79,45 @@ class exam_started extends external_api {
         $quizid = $params['quizid'];
         $attempt = $params['attempt'];
 
-        $syscontext = \context_system::instance();
-
-        self::validate_context($syscontext);
-
         if (!util::is_honorlock_active()) {
-            return ['success' => false, 'errors' => ['Honorlock is not active']];
+            return ['success' => false, 'errors' => [get_string('honorlockinactive', 'quizaccess_honorlock')]];
         }
-
-        require_login();
 
         $quiz = $DB->get_record('quiz', ['id' => $quizid]);
         if (!$quiz) {
-            return ['success' => false, 'errors' => ['Quiz does not exist']];
+            return ['success' => false, 'errors' => [get_string('quiznotexist', 'quizaccess_honorlock')]];
         }
         if (!$course = $DB->get_record('course', ['id' => $quiz->course])) {
-            return ['success' => false, 'errors' => ['Course does not exist']];
+            return ['success' => false, 'errors' => [get_string('coursenotexist', 'quizaccess_honorlock')]];
         }
         if (!$cm = get_coursemodule_from_instance("quiz", $quiz->id, $course->id)) {
-            return ['success' => false, 'errors' => ['Course module does not exist']];
+            return ['success' => false, 'errors' => [get_string('coursemodulenotexist', 'quizaccess_honorlock')]];
         }
         if ($cm->deletioninprogress) {
-            return ['success' => false, 'errors' => ['Activity is scheduled for deletion']];
+            return ['success' => false, 'errors' => [get_string('activityscheduledfordeletion', 'quizaccess_honorlock')]];
         }
-        require_login($course, false, $cm);
 
-        unset($SESSION->quizaccess_honorlock_exam);
-        unset($SESSION->quizaccess_honorlock_attempt);
+        $modcontext = \context_module::instance($cm->id);
+        self::validate_context($modcontext);
+        require_capability('mod/quiz:attempt', $modcontext);
+
+        util::clear_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
 
         // Verify user is on the authentication page.
         $honorlock = new honorlock();
         if (!$honorlock->verify_session($USER->id, $quizid, $attempt)) {
-            return ['success' => false, 'errors' => ['User not authenticated with Honorlock']];
+            return ['success' => false, 'errors' => [get_string('usernotauthenticated', 'quizaccess_honorlock')]];
         }
 
         // Start session.
         if (!$honorlock->begin_session($USER->id, $quizid, $attempt)) {
             // Try continuing the session.
             if (!$honorlock->continue_session($USER->id, $quizid, $attempt)) {
-                return ['success' => false, 'errors' => ['Cannot begin Honorlock exam session']];
+                return ['success' => false, 'errors' => [get_string('cannotbeginsession', 'quizaccess_honorlock')]];
             }
         }
 
-        $SESSION->quizaccess_honorlock_exam = $quizid;
-        $SESSION->quizaccess_honorlock_attempt = $attempt;
+        util::set_cache_data(util::ACTIVE_EXAM_CACHE_KEY, ['quizid' => $quizid, 'attempt' => $attempt]);
 
         return ['success' => true, 'errors' => []];
     }

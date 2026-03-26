@@ -31,7 +31,7 @@ class observer {
      * @return void
      */
     public static function course_module_viewed(\mod_quiz\event\course_module_viewed $event): void {
-        global $SESSION, $PAGE;
+        global $PAGE;
 
         if (!util::is_honorlock_active()) {
             return;
@@ -49,13 +49,13 @@ class observer {
 
         // Force Honorlock re-authentication if students visits the main quiz page.
 
-        if (!CLI_SCRIPT && !empty($SESSION->quizaccess_honorlock_exam)) {
+        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
+        if (!CLI_SCRIPT && $cachedata !== null) {
             // Attempt to reset the Honorlock session in browser and extension - this is critical.
             $PAGE->requires->js_call_amd('quizaccess_honorlock/honorlockproctoring', 'quizViewReset');
         }
 
-        unset($SESSION->quizaccess_honorlock_exam);
-        unset($SESSION->quizaccess_honorlock_attempt);
+        util::clear_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
     }
 
     /**
@@ -138,18 +138,18 @@ class observer {
      * @param int $attempt
      */
     public static function end_session(int $quizid, int $attempt): void {
-        global $SESSION, $USER;
+        global $USER;
 
-        if (empty($SESSION->quizaccess_honorlock_exam) || empty($SESSION->quizaccess_honorlock_attempt)) {
+        $cachedata = util::get_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
+        if ($cachedata === null) {
             return;
         }
 
-        if ($SESSION->quizaccess_honorlock_exam != $quizid || $SESSION->quizaccess_honorlock_attempt != $attempt) {
+        if ($cachedata['quizid'] != $quizid || $cachedata['attempt'] != $attempt) {
             return;
         }
 
-        unset($SESSION->quizaccess_honorlock_exam);
-        unset($SESSION->quizaccess_honorlock_attempt);
+        util::clear_cache_data(util::ACTIVE_EXAM_CACHE_KEY);
 
         if (util::is_behat() || util::is_phpunit()) {
             return;

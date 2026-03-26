@@ -88,7 +88,7 @@ class get_courses extends external_api {
         require_capability('quizaccess/honorlock:ws', \context_system::instance());
 
         if (!util::is_honorlock_active()) {
-            return ['success' => false, 'data' => [], 'errors' => ['Honorlock is not active']];
+            return ['success' => false, 'data' => [], 'errors' => [get_string('honorlockinactive', 'quizaccess_honorlock')]];
         }
 
         [$select, $params] = $DB->get_in_or_equal($ids);
