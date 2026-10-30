@@ -57,7 +57,7 @@ final class honorlock_test extends \advanced_testcase {
         $reflection = new \ReflectionClass(\curl::class);
         $mockresponses = $reflection->getProperty('mockresponses');
         $mockresponses->setAccessible(true);
-        $mockresponses->setValue([]);
+        $mockresponses->setValue(null, []);
 
         parent::tearDown();
     }
