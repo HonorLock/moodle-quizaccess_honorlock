@@ -107,7 +107,12 @@ final class util {
             $wsuser->auth = 'webservice';
             $wsuser->confirmed = 1;
             $wsuser->mnethostid = $CFG->mnet_localhost_id;
-            $wsuserid = user_create_user($wsuser, false);
+            // Moodle 5.3 deprecated user_create_user() in favour of \core\user::create_user().
+            if (method_exists(\core\user::class, 'create_user')) {
+                $wsuserid = \core\user::create_user($wsuser, false);
+            } else {
+                $wsuserid = user_create_user($wsuser, false);
+            }
             $wsuser = $DB->get_record('user', ['id' => $wsuserid], '*', MUST_EXIST);
         }
         set_config('wsuserid', $wsuser->id, 'quizaccess_honorlock');
@@ -146,6 +151,8 @@ final class util {
         $event->trigger();
 
         \core\plugininfo\webservice::enable_plugin('rest', 1);
+        // Moodle 5.3 rejects WS tokens of users whose auth plugin is disabled.
+        \core\plugininfo\auth::enable_plugin('webservice', 1);
 
         set_config('enablewebservices', 1);
 
@@ -167,10 +174,16 @@ final class util {
         if ($wsuserid) {
             $wsuser = $DB->get_record('user', ['id' => $wsuserid, 'auth' => 'webservice', 'deleted' => 0]);
             if ($wsuser) {
-                user_delete_user($wsuser);
+                // Moodle 5.3 deprecated user_delete_user() in favour of \core\user::delete_user().
+                if (method_exists(\core\user::class, 'delete_user')) {
+                    \core\user::delete_user($wsuser);
+                } else {
+                    user_delete_user($wsuser);
+                }
             }
         }
         unset_config('wsuserid', 'quizaccess_honorlock');
+        // Leave webservice auth enabled, other integrations on the site may rely on it.
 
         $wsroleid = get_config('quizaccess_honorlock', 'wsroleid');
         if ($wsroleid) {

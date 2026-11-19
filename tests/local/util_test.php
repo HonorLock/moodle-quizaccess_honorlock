@@ -121,11 +121,15 @@ final class util_test extends \advanced_testcase {
         $this->assertSame('quizaccess_honorlock', $webservice->component);
 
         set_config('enablewebservices', '0');
+        \core\plugininfo\auth::enable_plugin('webservice', 0);
+        $this->assertFalse(is_enabled_auth('webservice'));
 
         $result = util::init_ws();
+        $this->assertDebuggingNotCalled();
         $this->assertMatchesRegularExpression('/^[a-z0-9]+$/', $result['ws_token']);
         $this->assertCount(1, $result);
         $this->assertSame('1', get_config('core', 'enablewebservices'));
+        $this->assertTrue(is_enabled_auth('webservice'));
 
         $wsuserid = get_config('quizaccess_honorlock', 'wsuserid');
         $wsuser = $DB->get_record('user', ['id' => $wsuserid], '*', MUST_EXIST);
@@ -182,9 +186,11 @@ final class util_test extends \advanced_testcase {
         $wsrole = $DB->get_record('role', ['id' => $wsroleid], '*', MUST_EXIST);
 
         util::disable_ws();
+        $this->assertDebuggingNotCalled();
 
         $webservice = $DB->get_record('external_services', ['shortname' => 'quizaccess_honorlock'], '*', MUST_EXIST);
         $this->assertSame('0', $webservice->enabled);
+        $this->assertTrue(is_enabled_auth('webservice'));
 
         $this->assertFalse(get_config('quizaccess_honorlock', 'wsuserid'));
         $wsuser = $DB->get_record('user', ['id' => $wsuserid], '*', MUST_EXIST);
@@ -305,6 +311,8 @@ final class util_test extends \advanced_testcase {
         $clientsecret = 'djhdfsghjdfghjdfghjs';
         $honorlockurl = util::HONORLOCK_URL;
         $result = util::activate($clientid, $clientsecret, $honorlockurl);
+        $this->assertDebuggingNotCalled();
+        $this->assertTrue(is_enabled_auth('webservice'));
 
         $type = util::get_lti_type();
         $this->assertSame(get_config('quizaccess_honorlock', 'version'), $result['honorlock_version']);
@@ -336,6 +344,8 @@ final class util_test extends \advanced_testcase {
         $result = util::activate($clientid, $clientsecret, $honorlockurl);
 
         util::disable();
+        $this->assertDebuggingNotCalled();
+        $this->assertTrue(is_enabled_auth('webservice'));
         $this->assertSame('0', get_config('quizaccess_honorlock', 'active'));
         $this->assertFalse(get_config('quizaccess_honorlock', 'honorlock_client_id'));
         $this->assertFalse(get_config('quizaccess_honorlock', 'honorlock_client_secret'));

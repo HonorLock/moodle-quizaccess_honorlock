@@ -25,7 +25,7 @@ In this readme file, we will go through the key features of the Honorlock Procto
 
 # Requirements
 
-1. This version Honorlock Proctoring plugin was tested with Moodle 4.5, Moodle 5.0 and Moodle 5.1
+1. This version Honorlock Proctoring plugin was tested with Moodle 4.5, Moodle 5.0, Moodle 5.1, Moodle 5.2 and Moodle 5.3
 2. Honorlock organization client id and client secret are required for setup, use [Organization API Clients](https://app.honorlock.com/organization/apiclients) page.
 3. Honorlock Proctoring authenticates for instructors via LTI. Please, check the LTI configuration below.
 
@@ -54,6 +54,14 @@ or download the plugin code directly from Github.
 2. Click "Activate" button
 3. Fill in client id and secret and presses "Activate"
 4. Copy installation configuration details
+
+Activation turns on the following site-wide settings, which Honorlock needs to call Moodle's APIs:
+- Web services
+- REST protocol
+- Web services authentication ("Site administration / Plugins / Authentication / Manage authentication")
+
+Disabling Honorlock Proctoring removes the Honorlock API user, role and token, but leaves these settings
+enabled because other integrations on your site may rely on them.
 
 ### Honorlock API Access Role Configuration
 1. Navigate to "Site administration / Users / Define Roles / Honorlock API Access / Edit"
